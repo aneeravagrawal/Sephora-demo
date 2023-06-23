@@ -1,0 +1,40 @@
+- task: Bash@3
+displayName: Install Docker
+enabled: False
+inputs:
+targetType: inline
+script: >-
+sudo apt update
+sudo apt install apt-transport-https ca-certificates curl software-                           properties-common -y
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu bionic stable
+sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu bionic stable"
+sudo apt update
+apt-cache policy docker-ce
+sudo apt install docker-ce -y
+sudo systemctl start docker
+
+- task: Bash@3
+displayName: Install Azure CLI
+enabled: False
+inputs:
+targetType: inline
+script: "sudo apt-get update \nsudo apt-get install ca-certificates curl apt-transport-https lsb-release gnupg -y\ncurl -sL https://packages.microsoft.com/keys/microsoft.asc |\n    gpg --dearmor |\n    sudo tee /etc/apt/trusted.gpg.d/microsoft.gpg > /dev/null\nAZ_REPO=$(lsb_release -cs)\necho \"deb [arch=amd64] https://packages.microsoft.com/repos/azure-cli/ $AZ_REPO main\" |\n    sudo tee /etc/apt/sources.list.d/azure-cli.list\nsudo apt-get update\nsudo apt-get install azure-cli -y\nsudo apt install unzip -y"
+
+- task: TerraformInstaller@0
+displayName: Install Terraform 1.1.8
+inputs:
+terraformVersion: 1.1.8
+
+- task: Bash@3
+displayName: Pulling Required Docker Images
+enabled: False
+inputs:
+targetType: inline
+script: >
+# TFSEC
+sudo docker pull tfsec/tfsec:v1.13.2-arm64v8
+# TFLINT
+sudo docker pull ghcr.io/terraform-linters/tflint:v0.35.0
+# InfraCost
+sudo docker pull infracost/infracost:0.
